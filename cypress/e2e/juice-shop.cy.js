@@ -1,7 +1,15 @@
-import { HomePage } from "../pageObjects/HomePage";
+import { HomePage } from "../pageObjects/homePage";
 import { LoginPage } from "../pageObjects/loginPage";
 import { RegistrationPage } from "../pageObjects/registrationPage";
-
+import { BasketPage } from "../pageObjects/basketPage";
+import { SelectAddressPage } from "../pageObjects/selectAddressPage";
+import { DeliveryMethodPage } from "../pageObjects/deliveryMethodPage";
+import { PaymentOptionsPage } from "../pageObjects/paymentOptionsPage";
+import { OrderSummaryPage } from "../pageObjects/OrderSummaryPage";
+import { OrderCompletionPage } from "../pageObjects/orderCompletionPage";
+import { SavedAddressesPage } from "../pageObjects/savedAddressesPage";
+import { CreateAddressPage } from "../pageObjects/createAddressPage";
+import { SavedPaymentMethodsPage } from "../pageObjects/savedPaymentMethodsPage";
 describe("Juice-shop scenarios", () => {
   context("Without auto login", () => {
     beforeEach(() => {
@@ -128,7 +136,7 @@ describe("Juice-shop scenarios", () => {
       // Validate that the card (should) contains "Sweet & tasty!"
       HomePage.productCardInfo.should("contain.text", "Sweet & tasty!");
     });
-    it.only("Read a review", () => {
+    it("Read a review", () => {
       // Click on search icon
       HomePage.searchQueryButton.click();
       // Search for King
@@ -138,73 +146,156 @@ describe("Juice-shop scenarios", () => {
         .contains('OWASP Juice Shop "King of the Hill" Facemask')
         .click();
       // Click expand reviews button/icon (wait for reviews to appear)
-      HomePage.expandButton.click();
+      HomePage.expandReviewButton.click();
       // Validate review - K33p5 y0ur ju1cy 5plu773r 70 y0ur53lf!
       HomePage.reviewInfo.should(
         "contain.text",
         "K33p5 y0ur ju1cy 5plu773r 70 y0ur53lf!",
       );
     });
-
-    // Create scenario - Add a review
-    // Click on search icon
-    // Search for Raspberry
-    // Select a product card - Raspberry Juice (1000ml)
-    // Type in review - "Tastes like metal"
-    // Click Submit
-    // Click expand reviews button/icon (wait for reviews to appear)
-    // Validate review -  "Tastes like metal"
-
-    // Create scenario - Validate product card amount
-    // Validate that the default amount of cards is 12
-    // Change items per page (at the bottom of page) to 24
-    // Validate that the amount of cards is 24
-    // Change items per page (at the bottom of page) to 36
-    // Validate that the amount of cards is 35
-
-    // Create scenario - Buy Girlie T-shirt
-    // Click on search icon
-    // Search for Girlie
-    // Add to basket "Girlie"
-    // Click on "Your Basket" button
-    // Create page object - BasketPage
-    // Click on "Checkout" button
-    // Create page object - SelectAddressPage
-    // Select address containing "United Fakedom"
-    // Click Continue button
-    // Create page object - DeliveryMethodPage
-    // Select delivery speed Standard Delivery
-    // Click Continue button
-    // Create page object - PaymentOptionsPage
-    // Select card that ends with "5678"
-    // Click Continue button
-    // Create page object - OrderSummaryPage
-    // Click on "Place your order and pay"
-    // Create page object - OrderCompletionPage
-    // Validate confirmation - "Thank you for your purchase!"
-
-    // Create scenario - Add address
-    // Click on Account
-    // Click on Orders & Payment
-    // Click on My saved addresses
-    // Create page object - SavedAddressesPage
-    // Click on Add New Address
-    // Create page object - CreateAddressPage
-    // Fill in the necessary information
-    // Click Submit button
-    // Validate that previously added address is visible
-
-    // Create scenario - Add payment option
-    // Click on Account
-    // Click on Orders & Payment
-    // Click on My payment options
-    // Create page object - SavedPaymentMethodsPage
-    // Click Add new card
-    // Fill in Name
-    // Fill in Card Number
-    // Set expiry month to 7
-    // Set expiry year to 2090
-    // Click Submit button
-    // Validate that the card shows up in the list
+    it("Add a review", () => {
+      // Click on search icon
+      HomePage.searchQueryButton.click();
+      // Search for Raspberry
+      HomePage.searchInputField.type("Raspberry{enter}");
+      // Select a product card - Raspberry Juice (1000ml)
+      HomePage.productCards.contains("Raspberry Juice (1000ml)").click();
+      cy.wait(500);
+      // Type in review - "Tastes like metal"
+      HomePage.typeReview.type("Tastes like metal");
+      // Click Submit
+      HomePage.submitButton.click();
+      // Click expand reviews button/icon (wait for reviews to appear)
+      HomePage.expandReviewButton.click();
+      // Validate review -  "Tastes like metal"
+      HomePage.reviewInfo.should("contain.text", "Tastes like metal");
+    });
+    it("Validate product card amount", () => {
+      // Validate that the default amount of cards is 12
+      HomePage.validateCardAmount.contains("12");
+      // Change items per page (at the bottom of page) to 24
+      HomePage.clickChangeItemsPerPage.click();
+      HomePage.changeItemsPerPage.contains("24").click();
+      // Validate that the amount of cards is 24
+      HomePage.changeItemsPerPage.should("contain.text", "24");
+      // Change items per page (at the bottom of page) to 36
+      HomePage.clickChangeItemsPerPage.click();
+      HomePage.changeItemsPerPage.contains("36").click();
+      // Validate that the amount of cards is 36
+      HomePage.changeItemsPerPage.should("contain.text", "36");
+    });
+    it("Buy Girlie T-shirt", () => {
+      // Click on search icon
+      HomePage.searchQueryButton.click();
+      // Search for Girlie
+      HomePage.searchInputField.type("Girlie{enter}");
+      // Add to basket "Girlie"
+      HomePage.addToBasketButton.click();
+      // Click on "Your Basket" button
+      HomePage.yourBasketButton.click();
+      // Create page object - BasketPage
+      // Click on "Checkout" button
+      BasketPage.checkoutButton.click();
+      // Create page object - SelectAddressPage
+      // Select address containing "United Fakedom"
+      SelectAddressPage.selectAddress.contains("United Fakedom").click();
+      // Click Continue button
+      SelectAddressPage.continueButton.click();
+      // Create page object - DeliveryMethodPage
+      // Select delivery speed Standard Delivery
+      DeliveryMethodPage.selectDeliverySpeed
+        .contains("Standard Delivery")
+        .click();
+      // Click Continue button
+      DeliveryMethodPage.continueButton.click();
+      // Create page object - PaymentOptionsPage
+      // Select card that ends with "5678"
+      PaymentOptionsPage.paymentOption.invoke("text").then((text) => {
+        if (text.includes("5678")) {
+          PaymentOptionsPage.paymentOptionRadiobutton.click();
+        }
+      });
+      // Click Continue button
+      PaymentOptionsPage.continueButton.click();
+      // Create page object - OrderSummaryPage
+      // Click on "Place your order and pay"
+      OrderSummaryPage.checkoutButton.click();
+      // Create page object - OrderCompletionPage
+      // Validate confirmation - "Thank you for your purchase!"
+      OrderCompletionPage.orderConfirmation.should(
+        "contain.text",
+        "Thank you for your purchase!",
+      );
+    });
+    it("Add address", () => {
+      // Click on Account
+      HomePage.accountButton.click();
+      // Click on Orders & Payment
+      HomePage.ordersPaymentsButton.click();
+      // Click on My saved addresses
+      HomePage.savedAddressesButton.click();
+      // Create page object - SavedAddressesPage
+      // Click on Add New Address
+      SavedAddressesPage.addNewAddress.click();
+      // Create page object - CreateAddressPage
+      // Fill in the necessary information
+      const country = "Latvia",
+        name = "Estere",
+        number = "2093872",
+        zipcode = "LV-4050",
+        address = "Brivibas iela",
+        city = "Riga",
+        state = "Riga";
+      CreateAddressPage.countryField.type(country);
+      CreateAddressPage.nameField.type(name);
+      cy.wait(500);
+      CreateAddressPage.mobileNumberField.type(number);
+      CreateAddressPage.zipCode.type(zipcode);
+      CreateAddressPage.addAddress.type(address);
+      CreateAddressPage.addCity.type(city);
+      CreateAddressPage.addState.type(state);
+      // Click Submit button
+      CreateAddressPage.submitButton.click();
+      // Validate that previously added address is visible
+      CreateAddressPage.validateAddress.should(
+        "contain.text",
+        country,
+        name,
+        number,
+        zipcode,
+        address,
+        city,
+        state,
+      );
+    });
+    it("Add payment option", () => {
+      // Click on Account
+      HomePage.accountButton.click();
+      // Click on Orders & Payment
+      HomePage.ordersPaymentsButton.click();
+      // Click on My payment options
+      HomePage.myPaymentOptionsButton.click();
+      // Create page object - SavedPaymentMethodsPage
+      // Click Add new card
+      SavedPaymentMethodsPage.addNewCard.click();
+      const name = "Estere",
+        cardnumber = "1234567887654321";
+      // Fill in Name
+      SavedPaymentMethodsPage.nameField.type(name);
+      // Fill in Card Number
+      SavedPaymentMethodsPage.cardNumberField.type(cardnumber);
+      // Set expiry month to 7
+      SavedPaymentMethodsPage.expiryMonthDropDownButton.select("7");
+      // Set expiry year to 2090
+      SavedPaymentMethodsPage.expiryYearDropDownButton.select("2090");
+      // Click Submit button
+      SavedPaymentMethodsPage.submitButton.click();
+      // Validate that the card shows up in the list
+      SavedPaymentMethodsPage.visibleCard.should(
+        "contain.text",
+        name,
+        cardnumber,
+      );
+    });
   });
 });
